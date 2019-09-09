@@ -10,19 +10,6 @@ public class Kierrokset {
 
   public int laske(int[] t) {
 
-    /**
-     * --> n = taulukon pituus <-- Paras mahdollinen tulos: katsotaan n alkiota 1
-     * kerran O(n) - lineaarinen aikavaativuus Huonoin mahdollinen tulos: katsotaan
-     * n alkiota n kerran O(n²) - neliöllinen aikavaativuus
-     * 
-     * Sisäkkäinen silmukointi, jossa jokainen alkio käytäisiin läpi jokaisella
-     * ulomman silmukan suorituksella (huolimatta poimintojen määrästä per kerta)
-     * olisi siis aikavaativuudeltaan O(n²) - ei kelpaa
-     * 
-     * Muodostetaan huviksi sellainen taulukko, jossa kunkin indeksin kohdalla on
-     * sitä vastaavan luvun sijainti alkuperäisessä taulukossa -> ratkaisu!!
-     */
-
     int[] indeksiTaulukko = new int[t.length + 1];
     for (int i = 0; i < t.length; i++) {
       indeksiTaulukko[t[i]] = i;
