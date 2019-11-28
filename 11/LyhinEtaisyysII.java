@@ -1,5 +1,8 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
@@ -8,12 +11,10 @@ public class LyhinEtaisyysII {
   class Tuple implements Comparable<Tuple> {
     private int etaisyys;
     private int solmu;
-    private int vanhempi;
 
-    public Tuple(int etaisyys, int solmu, int vanhempi) {
+    public Tuple(int etaisyys, int solmu) {
       this.etaisyys = etaisyys;
       this.solmu = solmu;
-      this.vanhempi = vanhempi;
     }
 
     public int getEtaisyys() {
@@ -22,10 +23,6 @@ public class LyhinEtaisyysII {
 
     public int getSolmu() {
       return this.solmu;
-    }
-
-    public int getVanhempi() {
-      return vanhempi;
     }
 
     @Override
@@ -84,25 +81,6 @@ public class LyhinEtaisyysII {
     }
   }
 
-  // void testaa() {
-  //   Tuple t1 = new Tuple(5, 10);
-  //   Tuple t2 = new Tuple(1, 5);
-  //   Tuple t4 = new Tuple(0, 5);
-  //   Tuple t5 = new Tuple(17, 5);
-  //   Tuple t3 = new Tuple(3, 7);
-  //   PriorityQueue<Tuple> keko = new PriorityQueue<>();
-  //   keko.add(t3);
-  //   keko.add(t1);
-  //   keko.add(t5);
-  //   keko.add(t2);
-  //   keko.add(t4);
-  //   System.out.println(String.format("%s", keko.poll()));
-  //   System.out.println(String.format("%s", keko.poll()));
-  //   System.out.println(String.format("%s", keko.poll()));
-  //   System.out.println(String.format("%s", keko.poll()));
-  //   System.out.println(String.format("%s", keko.poll()));
-  // }
-
   void lisaaTie(int a, int b, int p) {
     Kaari k1 = new Kaari(a, b, p);
     this.rakenne[a].add(k1);
@@ -111,38 +89,53 @@ public class LyhinEtaisyysII {
   }
 
   ArrayList<Integer> muodosta(int a, int b) {
+    /* Vain yksi kaupunki */
+    if (a == b) return new ArrayList<Integer>(Arrays.asList(a));
+
     ArrayList<Integer> lista = new ArrayList<>();
     PriorityQueue<Tuple> keko = new PriorityQueue<>();
-    int[] etaisyys = new int[this.n + 1];
+
+    /* Tallennetaan etäisyydet siten, että solmun numero on avaimena ja arvona on [etäisyys, vanhempi] */
+    HashMap<Integer, Integer[]> etaisyys = new HashMap<>();
     boolean[] kasitelty = new boolean[this.n + 1];
     for (int i = 1; i <= n; i++) {
-      etaisyys[i] = 999999999;
+      etaisyys.put(i, new Integer[2]);
+      etaisyys.get(i)[0] = 999999999;
       kasitelty[i] = false;
     }
-    etaisyys[a] = 0;
-    keko.add(new Tuple(0, a, -1));
-    lista.add(a);
+    keko.add(new Tuple(0, a));
+    etaisyys.get(a)[0] = 0;
     while (!keko.isEmpty()) {
-      Tuple tt = keko.poll();
-      int solmu = tt.getSolmu();
-      int vanhempi = tt.getVanhempi();
+      int solmu = keko.poll().getSolmu();
       if (kasitelty[solmu]) continue;
       kasitelty[solmu] = true;
-      if (solmu != a && !lista.get(lista.size()-1).equals(vanhempi)) lista.add(vanhempi);
       for (Kaari k : this.rakenne[solmu]) {
-        int nyky = etaisyys[k.getLoppu()];
-        int uusi = etaisyys[solmu] + k.getPaino();
+        int nyky = etaisyys.get(k.getLoppu())[0];
+        int uusi = etaisyys.get(solmu)[0] + k.getPaino();
         if (uusi < nyky) {
-          etaisyys[k.getLoppu()] = uusi;
-          Tuple t = new Tuple(uusi, k.getLoppu(), solmu);
+          etaisyys.get(k.getLoppu())[0] = uusi;
+          /* Tässä laitetaan lyhyemmän kaaren lähtöpiste vanhemmaksi määräsolmulle */
+          etaisyys.get(k.getLoppu())[1] = solmu;
+          Tuple t = new Tuple(uusi, k.getLoppu());
           keko.add(t);
         }
       }
     }
-    if (etaisyys[b] == 999999999) {
+    Integer[] loppuSolmu = etaisyys.get(b);
+    if (loppuSolmu[0] == 999999999) {
       return null;
     }
+    /* for (Integer i : etaisyys.keySet()) {
+      System.out.println(String.format("%s: %s", i, Arrays.toString(etaisyys.get(i))));
+    } */
     lista.add(b);
+    /* Käydään läpi vanhempien ketju, josta saatiin lyhin reitti */
+    Integer vanhempi = loppuSolmu[1];
+    while (vanhempi != null) { // alkusolmulla ei ole vanhempaa
+      lista.add(vanhempi);
+      vanhempi = etaisyys.get(vanhempi)[1];
+    }
+    Collections.reverse(lista);
     return lista;
   }
 
