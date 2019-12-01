@@ -34,7 +34,7 @@ public class BellmanFord {
     long alku = System.nanoTime();
     System.out.println(String.format("%s", bf.laske(1, 159814)));
     long loppu = System.nanoTime();
-    System.out.println("Aikaa kului "+((loppu-alku)/1e9)+" s");
+    System.out.println("Aikaa kului " + ((loppu - alku) / 1e9) + " s");
   }
 
   private ArrayList<Kaari> kaaret;
